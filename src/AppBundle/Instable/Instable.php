@@ -59,9 +59,15 @@ class Instable extends ContainerAware
             'redirect_uri' => $container->getParameter('instagram_redirect_uri'),
             'debug' => true,
             'log_path' => $this->container->get('kernel')->getRootDir().'/logs/insta.log',
+            '' => '327437e551ca4575810799deed20c27a',
             /* TODO 'event.error' => null */
             'event.after' => array($this, 'onEventAfter')
         ]);
+
+        if(($accessToken = $container->getParameter('instagram_access_token')) != '')
+        {
+            $this->api->setAccessToken($accessToken);
+        }
     }
 
     public function onEventAfter(CompleteEvent $e)
@@ -72,6 +78,11 @@ class Instable extends ContainerAware
     public function getLastResponse()
     {
         return $this->lastResponse;
+    }
+
+    public function getApi()
+    {
+        return $this->api;
     }
 
     public function getDispatcher()
