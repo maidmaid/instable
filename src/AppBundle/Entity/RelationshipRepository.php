@@ -84,8 +84,15 @@ class RelationshipRepository extends EntityRepository
      */
     public function findAllByUser($user)
     {
-        $query = $this->createQueryBuilderByAll()
+        $min = $this->createQueryBuilder('r2')
+            ->select('MIN(r2.createdAt)')
+            ->where('r2.user = :user')
+            ->groupBy('r2.user')
+            ->setParameter('user', $user);
+
+        $query = $this->createQueryBuilder('r')
             ->where('r.user = :user')
+            ->andWhere(sprintf('r.createdAt != (%s)', $min))
             ->setParameter('user', $user)
             ->getQuery();
 

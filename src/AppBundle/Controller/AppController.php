@@ -19,17 +19,9 @@ class AppController extends Controller
         {
             $follows[$relationship->getCreatedAt()->format("Ymdhms")][] = $relationship;
         }
-        
-        $relationships = $this->getDoctrine()->getRepository('AppBundle:Relationship')->findAllByTargetUser(1);
-        $followedBy = array();
-        foreach($relationships as $relationship)
-        {
-            $followedBy[$relationship->getCreatedAt()->format("Ymdhms")][] = $relationship;
-        }
 
         return $this->render('default/index.html.twig', array(
-            'follows' => $follows,
-            'followedBy' => $followedBy,
+            'follows' => $follows
         ));
     }
 }

@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\UnitOfWork;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Event\CompleteEvent;
 use Instaphp\Exceptions\Exception;
 use Instaphp\Instagram\Response;
 use Instaphp\Instaphp;
@@ -41,6 +42,9 @@ class Instable extends ContainerAware
     /** @var UnitOfWork */
     protected $uow;
 
+    /** @var Response */
+    protected $lastResponse;
+
     function __construct(ContainerInterface $container)
     {
         $this->setContainer($container);
@@ -56,7 +60,18 @@ class Instable extends ContainerAware
             'debug' => true,
             'log_path' => $this->container->get('kernel')->getRootDir().'/logs/insta.log',
             /* TODO 'event.error' => null */
+            'event.after' => array($this, 'onEventAfter')
         ]);
+    }
+
+    public function onEventAfter(CompleteEvent $e)
+    {
+        $this->lastResponse = new Response($e->getResponse());
+    }
+
+    public function getLastResponse()
+    {
+        return $this->lastResponse;
     }
 
     public function getDispatcher()
@@ -80,6 +95,8 @@ class Instable extends ContainerAware
         $this->updateUnfollowersBy($user);
 
         $this->em->flush();
+
+        $this->dispatcher->dispatch('instable.update.finish');
     }
 
     /**

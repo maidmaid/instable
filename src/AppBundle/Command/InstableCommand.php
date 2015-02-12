@@ -24,6 +24,9 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
     /** @var OutputInterface */
     protected $output;
 
+    /** @var Instable */
+    protected $instable;
+
     /**
      * {@inheritdoc}
      */
@@ -41,14 +44,14 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->output = $output;
-        $instable = $this->getContainer()->get('instable');
-        $instable->getDispatcher()->addSubscriber($this);
+        $this->instable = $this->getContainer()->get('instable');
+        $this->instable->getDispatcher()->addSubscriber($this);
 
         while(true)
         {
             //$instable->update('432990605'); // mirsad_ddd
             //$instable->update('274407715'); // mathieu_couturier
-            $instable->update('274407715');  // danymai
+            $this->instable->update('274407715');  // danymai
         }
     }
 
@@ -67,7 +70,8 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
             'instable.followers_by.next_pagination' => 'onFollowersByNextPagination',
             'instable.followers_by.new_follower' => 'onFollowersByNewFollower',
             'instable.unfollowers_by.start' => 'onUnfollowersByStart',
-            'instable.unfollowers_by.new_unfollower' => 'onUnfollowersByNewUnfollower'
+            'instable.unfollowers_by.new_unfollower' => 'onUnfollowersByNewUnfollower',
+            'instable.update.finish' => 'onUpdateFinish'
         );
     }
 
@@ -94,16 +98,18 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
 
         $max = Instable::estimateOperations($user);
         $this->bar = new ProgressBar($this->output, $max);
+        $this->bar->setBarCharacter('<comment>=</comment>');
+        $this->bar->setEmptyBarCharacter(' ');
+        $this->bar->setProgressCharacter('<comment>></comment>');
         $this->bar->advance();
         $this->writeUser($user);
-        $this->output->write(sprintf(" (<comment>%s</comment>)", $user->getExternalId()));
         $this->output->write(" changes : ");
         dump($changeset);
     }
 
     public function onFollowersStart(Event $e)
     {
-        $this->output->writeln("\nUpdate followers");
+        $this->output->writeln("Update followers");
         $this->bar->advance();
     }
 
@@ -157,11 +163,16 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
         $this->writeUser($e->getSubject());
     }
 
+    public function onUpdateFinish(Event $e)
+    {
+        $this->output->writeln(sprintf("\nremaining : %s\nUpload finished!", $this->instable->getLastResponse()->remaining));
+    }
+
     /**
      * @param $user User
      */
     protected function writeUser($user)
     {
-        $this->output->write(sprintf(' <info>%s</info>', $user->getUsername()));
+        $this->output->write(sprintf(' <info>%s</info> (<comment>%s</comment>)', $user->getUsername(), $user->getExternalId()));
     }
 }
