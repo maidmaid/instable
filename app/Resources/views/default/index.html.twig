@@ -1,5 +1,16 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    Homepage.
+    {% for date, relationships in follows %}
+        <div style="clear: both;">
+            <h1>{{ relationships[0].createdAt|date }}</h1>
+            <p>{{ relationships[0].updatedAt|date }}</p>
+            {% for relationship in relationships %}
+                <div style="float: left; background-color: {%  if relationship.followed %}green{% else %}red{% endif %}">
+                    <p>{{ relationship.targetUser.username }}</p>
+                    <img src="{{ relationship.targetUser.profilePicture }}" alt=""/>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
 {% endblock %}

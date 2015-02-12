@@ -18,3 +18,8 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
+
+    # Instagram
+    instagram_client_id:        ~
+    instagram_client_secret:    ~
+    instagram_redirect_uri:     ~
