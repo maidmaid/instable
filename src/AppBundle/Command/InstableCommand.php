@@ -49,21 +49,19 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
 
         while(true)
         {
-            try
+            $trackings = $this->getContainer()->get('doctrine')->getRepository('AppBundle:Tracking')->findAll();
+
+            foreach($trackings as $tracking)
             {
-                $this->instable->update('198130716');   // mnebil
-                $this->instable->update('274407715');   // danymai
-                $this->instable->update('432990605');   // mirsad_ddd
-                $this->instable->update('28441574');    // mathieu_couturier
-                $this->instable->update('216991190');   // odrey_0202
-                $this->instable->update('1544096656');  // aminoush_dolce
-                $this->instable->update('197151608');   // bi_lit
-                $this->instable->update('1541530119');  // gwen.gwen.gwen
-            }
-            catch(Exception $e)
-            {
-                $this->output->writeln(sprintf("<error>%s, code %s</error>", $e->getMessage(), $e->getCode()));
-                $this->sleep(15);
+                try
+                {
+                    $this->instable->update($tracking->getTracked());
+                }
+                catch(Exception $e)
+                {
+                    $this->output->writeln(sprintf("<error>%s, code %s</error>", $e->getMessage(), $e->getCode()));
+                    $this->sleep(15);
+                }
             }
         }
     }

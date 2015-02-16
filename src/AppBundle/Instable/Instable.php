@@ -108,13 +108,13 @@ class Instable extends ContainerAware
     }
 
     /**
-     * @param $userId
+     * @param $user User
      * @return User
      */
-    public function updateSelfUser($userId)
+    public function updateSelfUser($user)
     {
         $this->dispatcher->dispatch('instable.self.start');
-        $r = $this->api->Users->Info($userId);
+        $r = $this->api->Users->Info($user->getExternalId());
         $user = $this->updateUser($r->data);
 
         // Compute changes
