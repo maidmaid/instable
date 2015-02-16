@@ -23,4 +23,3 @@ parameters:
     instagram_client_id:        014ead5d04874ed1a784d061343af014
     instagram_client_secret:    ~
     instagram_redirect_uri:     http://localhost/instable/web/app_dev.php/oauth
-    instagram_access_token:     ~
