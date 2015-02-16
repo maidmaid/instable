@@ -10,6 +10,40 @@ use Symfony\Component\HttpFoundation\Request;
 class AppController extends Controller
 {
     /**
+     * @Route("/", name="homepage")
+     */
+    public function homepageAction(Request $request)
+    {
+        $url = $this->get('instable')->getApi()->getOauthUrl();
+        return $this->redirect($url);
+    }
+
+    /**
+     * @Route("/oauth", name="oauth")
+     */
+    public function oauthAction(Request $request)
+    {
+        $instable = $this->get('instable');
+        $em = $this->getDoctrine()->getEntityManager();
+
+        // Authorize
+        $code = $request->query->get('code');
+        $instable->getApi()->Users->Authorize($code);
+
+        // Save user
+        $accessToken = $instable->getApi()->getAccessToken();
+        $data = $this->get('instable')->getApi()->Users->getCurrentUser();
+        $user = $instable->updateUser($data);
+        $user->setCode($code);
+        $user->setAccessToken($accessToken);
+
+        $em->persist($user);
+        $em->flush();
+
+        return $this->render('default/index.html.twig', array('user' => $user));
+    }
+
+    /**
      * @Route("/instable/{username}", name="instable")
      */
     public function indexAction(User $user)
@@ -21,18 +55,8 @@ class AppController extends Controller
             $follows[$relationship->getCreatedAt()->format("Ymdhms")][] = $relationship;
         }
 
-        return $this->render('default/index.html.twig', array(
+        return $this->render('default/history.html.twig', array(
             'follows' => $follows
         ));
-    }
-
-    /**
-     * @Route("/oauth", name="oauth")
-     */
-    public function oauthAction(Request $request)
-    {
-        $url = $this->get('instable')->getApi()->getOauthUrl();
-        $url = str_replace('response_type=code', 'response_type=token', $url);
-        return $this->render('default/oaut.html.twig', array('url' => $url));
     }
 }

@@ -59,15 +59,12 @@ class Instable extends ContainerAware
             'redirect_uri' => $container->getParameter('instagram_redirect_uri'),
             'debug' => true,
             'log_path' => $this->container->get('kernel')->getRootDir().'/logs/insta.log',
-            '' => '327437e551ca4575810799deed20c27a',
             /* TODO 'event.error' => null */
             'event.after' => array($this, 'onEventAfter')
         ]);
 
-        if(($accessToken = $container->getParameter('instagram_access_token')) != '')
-        {
-            $this->api->setAccessToken($accessToken);
-        }
+        $user = $container->get('doctrine')->getRepository('AppBundle:User')->findOneBy(array('username' => 'danymai'));
+        $this->api->setAccessToken($user->getAccessToken());
     }
 
     public function onEventAfter(CompleteEvent $e)
@@ -256,6 +253,10 @@ class Instable extends ContainerAware
         }
     }
 
+    /**
+     * @param $data
+     * @return User
+     */
     public function updateUser($data)
     {
         /** @var UserRepository $repo */

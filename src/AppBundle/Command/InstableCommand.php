@@ -49,21 +49,28 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
 
         while(true)
         {
-            $this->instable->update('198130716');   // mnebil
-            $this->instable->update('274407715');   // danymai
-            $this->instable->update('432990605');   // mirsad_ddd
-            $this->instable->update('28441574');    // mathieu_couturier
-            $this->instable->update('216991190');   // odrey_0202
-            $this->instable->update('1544096656');  // aminoush_dolce
-            $this->instable->update('197151608');   // bi_lit
-            $this->instable->update('1541530119');  // gwen.gwen.gwen
+            try
+            {
+                $this->instable->update('198130716');   // mnebil
+                $this->instable->update('274407715');   // danymai
+                $this->instable->update('432990605');   // mirsad_ddd
+                $this->instable->update('28441574');    // mathieu_couturier
+                $this->instable->update('216991190');   // odrey_0202
+                $this->instable->update('1544096656');  // aminoush_dolce
+                $this->instable->update('197151608');   // bi_lit
+                $this->instable->update('1541530119');  // gwen.gwen.gwen
+            }
+            catch(Exception $e)
+            {
+                $this->output->writeln(sprintf("<error>%s, code %s</error>", $e->getMessage(), $e->getCode()));
+                $this->sleep(15);
+            }
         }
     }
 
     public static function getSubscribedEvents()
     {
         return array(
-            ConsoleEvents::EXCEPTION => 'onConsoleException',
             'instable.self.start' => 'onSelfStart',
             'instable.self.update' => 'onSelfUpdate',
             'instable.followers.start' => 'onFollowersStart',
@@ -78,16 +85,6 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
             'instable.unfollowers_by.new_unfollower' => 'onUnfollowersByNewUnfollower',
             'instable.update.finish' => 'onUpdateFinish'
         );
-    }
-
-    public function onConsoleException(ConsoleExceptionEvent $event)
-    {
-        $e = $event->getException();
-
-        if($e instanceof Exception)
-        {
-            $this->output->writeln(sprintf("HTTP code response : <error>%s</error>", $e->getCode()));
-        }
     }
 
     public function onSelfStart(Event $e)
@@ -179,5 +176,16 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
     protected function writeUser($user)
     {
         $this->output->write(sprintf(' <info>%s</info> (<comment>%s</comment>)', $user->getUsername(), $user->getExternalId()));
+    }
+
+    protected function sleep($seconds)
+    {
+        $this->output->writeln(sprintf("Sleep <info>%s</info> seconds", $seconds));
+        $bar = new ProgressBar($this->output, $seconds);
+        for($s = 0; $s < $seconds; $s++)
+        {
+            sleep(1);
+            $bar->advance();
+        }
     }
 }
