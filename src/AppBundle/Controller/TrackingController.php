@@ -22,7 +22,7 @@ class TrackingController extends Controller
 
         return $this->render('tracking/index.html.twig', array(
             'trackings' => $trackings,
-            'users' => $users
+            'users' => $users,
         ));
     }
 

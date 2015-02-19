@@ -5,7 +5,7 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User
+ * User.
  *
  * @ORM\Table()
  * @ORM\Entity(repositoryClass="AppBundle\Entity\UserRepository")
@@ -99,9 +99,9 @@ class User
     private $accessToken;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -109,9 +109,10 @@ class User
     }
 
     /**
-     * Set username
+     * Set username.
      *
      * @param string $username
+     *
      * @return User
      */
     public function setUsername($username)
@@ -122,9 +123,9 @@ class User
     }
 
     /**
-     * Get username
+     * Get username.
      *
-     * @return string 
+     * @return string
      */
     public function getUsername()
     {
@@ -132,9 +133,10 @@ class User
     }
 
     /**
-     * Set bio
+     * Set bio.
      *
      * @param string $bio
+     *
      * @return User
      */
     public function setBio($bio)
@@ -145,9 +147,9 @@ class User
     }
 
     /**
-     * Get bio
+     * Get bio.
      *
-     * @return string 
+     * @return string
      */
     public function getBio()
     {
@@ -155,9 +157,10 @@ class User
     }
 
     /**
-     * Set website
+     * Set website.
      *
      * @param string $website
+     *
      * @return User
      */
     public function setWebsite($website)
@@ -168,9 +171,9 @@ class User
     }
 
     /**
-     * Get website
+     * Get website.
      *
-     * @return string 
+     * @return string
      */
     public function getWebsite()
     {
@@ -178,9 +181,10 @@ class User
     }
 
     /**
-     * Set profilePicture
+     * Set profilePicture.
      *
      * @param string $profilePicture
+     *
      * @return User
      */
     public function setProfilePicture($profilePicture)
@@ -191,9 +195,9 @@ class User
     }
 
     /**
-     * Get profilePicture
+     * Get profilePicture.
      *
-     * @return string 
+     * @return string
      */
     public function getProfilePicture()
     {
@@ -201,9 +205,10 @@ class User
     }
 
     /**
-     * Set fullName
+     * Set fullName.
      *
      * @param string $fullName
+     *
      * @return User
      */
     public function setFullName($fullName)
@@ -214,9 +219,9 @@ class User
     }
 
     /**
-     * Get fullName
+     * Get fullName.
      *
-     * @return string 
+     * @return string
      */
     public function getFullName()
     {
@@ -224,9 +229,10 @@ class User
     }
 
     /**
-     * Set externalId
+     * Set externalId.
      *
      * @param integer $externalId
+     *
      * @return User
      */
     public function setExternalId($externalId)
@@ -237,9 +243,9 @@ class User
     }
 
     /**
-     * Get externalId
+     * Get externalId.
      *
-     * @return integer 
+     * @return integer
      */
     public function getExternalId()
     {
@@ -247,9 +253,10 @@ class User
     }
 
     /**
-     * Set countMedia
+     * Set countMedia.
      *
      * @param integer $countMedia
+     *
      * @return User
      */
     public function setCountMedia($countMedia)
@@ -260,9 +267,9 @@ class User
     }
 
     /**
-     * Get countMedia
+     * Get countMedia.
      *
-     * @return integer 
+     * @return integer
      */
     public function getCountMedia()
     {
@@ -270,9 +277,10 @@ class User
     }
 
     /**
-     * Set countFollows
+     * Set countFollows.
      *
      * @param integer $countFollows
+     *
      * @return User
      */
     public function setCountFollows($countFollows)
@@ -283,9 +291,9 @@ class User
     }
 
     /**
-     * Get countFollows
+     * Get countFollows.
      *
-     * @return integer 
+     * @return integer
      */
     public function getCountFollows()
     {
@@ -293,9 +301,10 @@ class User
     }
 
     /**
-     * Set countFollowedBy
+     * Set countFollowedBy.
      *
      * @param integer $countFollowedBy
+     *
      * @return User
      */
     public function setCountFollowedBy($countFollowedBy)
@@ -306,9 +315,9 @@ class User
     }
 
     /**
-     * Get countFollowedBy
+     * Get countFollowedBy.
      *
-     * @return integer 
+     * @return integer
      */
     public function getCountFollowedBy()
     {
@@ -316,9 +325,10 @@ class User
     }
 
     /**
-     * Set code
+     * Set code.
      *
      * @param string $code
+     *
      * @return User
      */
     public function setCode($code)
@@ -329,9 +339,9 @@ class User
     }
 
     /**
-     * Get code
+     * Get code.
      *
-     * @return string 
+     * @return string
      */
     public function getCode()
     {
@@ -339,9 +349,10 @@ class User
     }
 
     /**
-     * Set accessToken
+     * Set accessToken.
      *
      * @param string $accessToken
+     *
      * @return User
      */
     public function setAccessToken($accessToken)
@@ -352,9 +363,9 @@ class User
     }
 
     /**
-     * Get accessToken
+     * Get accessToken.
      *
-     * @return string 
+     * @return string
      */
     public function getAccessToken()
     {

@@ -5,7 +5,7 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User
+ * User.
  *
  * @ORM\Table()
  * @ORM\Entity(repositoryClass="AppBundle\Entity\TrackingRepository")
@@ -38,9 +38,9 @@ class Tracking
     private $tracked;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -48,9 +48,10 @@ class Tracking
     }
 
     /**
-     * Set tracker
+     * Set tracker.
      *
      * @param \AppBundle\Entity\User $tracker
+     *
      * @return Tracking
      */
     public function setTracker(\AppBundle\Entity\User $tracker = null)
@@ -61,9 +62,9 @@ class Tracking
     }
 
     /**
-     * Get tracker
+     * Get tracker.
      *
-     * @return \AppBundle\Entity\User 
+     * @return \AppBundle\Entity\User
      */
     public function getTracker()
     {
@@ -71,9 +72,10 @@ class Tracking
     }
 
     /**
-     * Set tracked
+     * Set tracked.
      *
      * @param \AppBundle\Entity\User $tracked
+     *
      * @return Tracking
      */
     public function setTracked(\AppBundle\Entity\User $tracked = null)
@@ -84,9 +86,9 @@ class Tracking
     }
 
     /**
-     * Get tracked
+     * Get tracked.
      *
-     * @return \AppBundle\Entity\User 
+     * @return \AppBundle\Entity\User
      */
     public function getTracked()
     {

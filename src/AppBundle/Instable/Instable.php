@@ -12,7 +12,6 @@ use Doctrine\ORM\UnitOfWork;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Event\CompleteEvent;
-use Instaphp\Exceptions\Exception;
 use Instaphp\Instagram\Response;
 use Instaphp\Instaphp;
 use Symfony\Component\DependencyInjection\ContainerAware;
@@ -20,7 +19,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Component\VarDumper\VarDumper;
 
 class Instable extends ContainerAware
 {
@@ -45,7 +43,7 @@ class Instable extends ContainerAware
     /** @var Response */
     protected $lastResponse;
 
-    function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container)
     {
         $this->setContainer($container);
         $this->em = $this->container->get('doctrine.orm.entity_manager');
@@ -60,7 +58,7 @@ class Instable extends ContainerAware
             'debug' => true,
             'log_path' => $this->container->get('kernel')->getRootDir().'/logs/insta.log',
             /* TODO 'event.error' => null */
-            'event.after' => array($this, 'onEventAfter')
+            'event.after' => array($this, 'onEventAfter'),
         ]);
 
         $user = $container->get('doctrine')->getRepository('AppBundle:User')->findOneBy(array('username' => 'danymai'));
@@ -109,6 +107,7 @@ class Instable extends ContainerAware
 
     /**
      * @param $user User
+     *
      * @return User
      */
     public function updateSelfUser($user)
@@ -130,20 +129,19 @@ class Instable extends ContainerAware
 
     /**
      * @param $user User
+     *
      * @return Relationship[]
      */
     public function updateFollowers($user)
     {
-        /** @var Response $response */
+        /* @var Response $response */
 
-        $update = function($response) use ($user) {
-            foreach($response->data as $d)
-            {
+        $update = function ($response) use ($user) {
+            foreach ($response->data as $d) {
                 $targetUser = $this->updateUser($d);
                 $relationship = $this->updateRelationship($user, $targetUser);
 
-                if($relationship->getId() === null)
-                {
+                if ($relationship->getId() === null) {
                     $this->dispatcher->dispatch('instable.followers.new_follower', new GenericEvent($targetUser));
                 }
             }
@@ -152,8 +150,7 @@ class Instable extends ContainerAware
         $this->dispatcher->dispatch('instable.followers.start');
         $response = $this->api->Users->Follows($user->getExternalId());
         $update($response);
-        while($response = Utils::nextUrl($response))
-        {
+        while ($response = Utils::nextUrl($response)) {
             $this->dispatcher->dispatch('instable.followers.next_pagination');
             $update($response);
         }
@@ -163,20 +160,19 @@ class Instable extends ContainerAware
 
     /**
      * @param $targetUser User
+     *
      * @return Relationship[]
      */
     public function updateFollowersBy($targetUser)
     {
-        /** @var Response $response */
+        /* @var Response $response */
 
-        $update = function($response) use ($targetUser) {
-            foreach($response->data as $d)
-            {
+        $update = function ($response) use ($targetUser) {
+            foreach ($response->data as $d) {
                 $user = $this->updateUser($d);
                 $relationship = $this->updateRelationship($user, $targetUser);
 
-                if($relationship->getId() === null)
-                {
+                if ($relationship->getId() === null) {
                     $this->dispatcher->dispatch('instable.followers_by.new_follower', new GenericEvent($user));
                 }
             }
@@ -185,8 +181,7 @@ class Instable extends ContainerAware
         $this->dispatcher->dispatch('instable.followers_by.start');
         $response = $this->api->Users->FollowedBy($targetUser->getExternalId());
         $update($response);
-        while($response = Utils::nextUrl($response))
-        {
+        while ($response = Utils::nextUrl($response)) {
             $this->dispatcher->dispatch('instable.followers_by.next_pagination');
             $update($response);
         }
@@ -197,6 +192,7 @@ class Instable extends ContainerAware
     /**
      * @param $user User
      * @param $targetUser User
+     *
      * @return Relationship
      */
     public function updateRelationship($user, $targetUser)
@@ -205,16 +201,11 @@ class Instable extends ContainerAware
         $repo = $this->em->getRepository('AppBundle:Relationship');
         $relationship = $repo->findOneByLast($user->getId(), $targetUser->getId());
 
-        if($relationship === null)
-        {
+        if ($relationship === null) {
             $relationship = new Relationship($user, $targetUser, true, $this->start, $this->start);
-        }
-        elseif(!$relationship->getFollowed())
-        {
+        } elseif (!$relationship->getFollowed()) {
             $relationship = new Relationship($user, $targetUser, true, $this->start, $this->start);
-        }
-        elseif($relationship->getFollowed())
-        {
+        } elseif ($relationship->getFollowed()) {
             $relationship->setUpdatedAt($this->start);
         }
 
@@ -230,8 +221,7 @@ class Instable extends ContainerAware
 
         $this->dispatcher->dispatch('instable.unfollowers.start');
         $relationships = $repo->findByUserAndPreUpdatedAt($user, $this->start);
-        foreach($relationships as $relationship)
-        {
+        foreach ($relationships as $relationship) {
             $r = new Relationship($user, $relationship->getTargetUser(), false, $this->start, $this->start);
             $this->em->persist($r);
             $this->dispatcher->dispatch('instable.unfollowers.new_unfollower', new GenericEvent($relationship->getTargetUser()));
@@ -245,8 +235,7 @@ class Instable extends ContainerAware
 
         $this->dispatcher->dispatch('instable.unfollowers_by.start');
         $relationships = $repo->findByTargetUserAndPreUpdatedAt($targetUser, $this->start);
-        foreach($relationships as $relationship)
-        {
+        foreach ($relationships as $relationship) {
             $r = new Relationship($relationship->getUser(), $targetUser, false, $this->start, $this->start);
             $this->em->persist($r);
             $this->dispatcher->dispatch('instable.unfollowers_by.new_unfollower', new GenericEvent($relationship->getTargetUser()));
@@ -255,6 +244,7 @@ class Instable extends ContainerAware
 
     /**
      * @param $data
+     *
      * @return User
      */
     public function updateUser($data)
@@ -273,8 +263,7 @@ class Instable extends ContainerAware
         $user->setFullName($data['full_name']);
         $user->setExternalId($data['id']);
 
-        if(array_key_exists('counts', $data))
-        {
+        if (array_key_exists('counts', $data)) {
             $user->setCountMedia($data['counts']['media']);
             $user->setCountFollowedBy($data['counts']['followed_by']);
             $user->setCountFollows($data['counts']['follows']);
@@ -287,6 +276,7 @@ class Instable extends ContainerAware
 
     /**
      * @param $user User
+     *
      * @return int
      */
     public static function estimateOperations($user)

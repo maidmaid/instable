@@ -5,9 +5,8 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\EntityRepository;
 
 /**
- * TrackingRepository
+ * TrackingRepository.
  */
 class TrackingRepository extends EntityRepository
 {
-
 }

@@ -5,7 +5,7 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * History
+ * History.
  *
  * @ORM\Table()
  * @ORM\Entity(repositoryClass="AppBundle\Entity\RelationshipRepository")
@@ -44,7 +44,6 @@ class Relationship
      */
     private $followed;
 
-
     /**
      * @var \DateTime
      *
@@ -59,7 +58,7 @@ class Relationship
      */
     private $updatedAt;
 
-    function __construct($user, $targetUser, $followed, $createdAt, $updatedAt)
+    public function __construct($user, $targetUser, $followed, $createdAt, $updatedAt)
     {
         $this->user = $user;
         $this->targetUser = $targetUser;
@@ -69,9 +68,9 @@ class Relationship
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -79,9 +78,10 @@ class Relationship
     }
 
     /**
-     * Set followed
+     * Set followed.
      *
      * @param boolean $followed
+     *
      * @return Relationship
      */
     public function setFollowed($followed)
@@ -92,9 +92,9 @@ class Relationship
     }
 
     /**
-     * Get followed
+     * Get followed.
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getFollowed()
     {
@@ -102,9 +102,10 @@ class Relationship
     }
 
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
+     *
      * @return Relationship
      */
     public function setCreatedAt($createdAt)
@@ -115,9 +116,9 @@ class Relationship
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {
@@ -125,9 +126,10 @@ class Relationship
     }
 
     /**
-     * Set updatedAt
+     * Set updatedAt.
      *
      * @param \DateTime $updatedAt
+     *
      * @return Relationship
      */
     public function setUpdatedAt($updatedAt)
@@ -138,9 +140,9 @@ class Relationship
     }
 
     /**
-     * Get updatedAt
+     * Get updatedAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getUpdatedAt()
     {
@@ -148,9 +150,10 @@ class Relationship
     }
 
     /**
-     * Set user
+     * Set user.
      *
      * @param \AppBundle\Entity\User $user
+     *
      * @return Relationship
      */
     public function setUser(\AppBundle\Entity\User $user = null)
@@ -161,9 +164,9 @@ class Relationship
     }
 
     /**
-     * Get user
+     * Get user.
      *
-     * @return \AppBundle\Entity\User 
+     * @return \AppBundle\Entity\User
      */
     public function getUser()
     {
@@ -171,9 +174,10 @@ class Relationship
     }
 
     /**
-     * Set targetUser
+     * Set targetUser.
      *
      * @param \AppBundle\Entity\User $targetUser
+     *
      * @return Relationship
      */
     public function setTargetUser(\AppBundle\Entity\User $targetUser = null)
@@ -184,9 +188,9 @@ class Relationship
     }
 
     /**
-     * Get targetUser
+     * Get targetUser.
      *
-     * @return \AppBundle\Entity\User 
+     * @return \AppBundle\Entity\User
      */
     public function getTargetUser()
     {

@@ -5,13 +5,15 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\EntityRepository;
 
 /**
- * RelationshipRepository
+ * RelationshipRepository.
  */
 class RelationshipRepository extends EntityRepository
 {
     /**
      * @param $user
+     *
      * @return Relationship
+     *
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function findOneByLast($user, $targetUser)
@@ -42,6 +44,7 @@ class RelationshipRepository extends EntityRepository
     /**
      * @param $user User
      * @param $updateAt
+     *
      * @return Relationship[]
      */
     public function findByUserAndPreUpdatedAt($user, $updateAt)
@@ -62,6 +65,7 @@ class RelationshipRepository extends EntityRepository
     /**
      * @param $targetUser User
      * @param $updateAt
+     *
      * @return Relationship[]
      */
     public function findByTargetUserAndPreUpdatedAt($targetUser, $updateAt)

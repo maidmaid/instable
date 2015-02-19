@@ -15,6 +15,7 @@ class AppController extends Controller
     public function homepageAction(Request $request)
     {
         $url = $this->get('instable')->getApi()->getOauthUrl();
+
         return $this->redirect($url);
     }
 
@@ -50,13 +51,12 @@ class AppController extends Controller
     {
         $relationships = $this->getDoctrine()->getRepository('AppBundle:Relationship')->findAllByUser($user);
         $follows = array();
-        foreach($relationships as $relationship)
-        {
+        foreach ($relationships as $relationship) {
             $follows[$relationship->getCreatedAt()->format("Ymdhms")][] = $relationship;
         }
 
         return $this->render('default/history.html.twig', array(
-            'follows' => $follows
+            'follows' => $follows,
         ));
     }
 }

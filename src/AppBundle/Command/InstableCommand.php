@@ -2,13 +2,10 @@
 
 namespace AppBundle\Command;
 
-use AppBundle\Entity\History;
 use AppBundle\Entity\User;
 use AppBundle\Instable\Instable;
 use Instaphp\Exceptions\Exception;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\ConsoleEvents;
-use Symfony\Component\Console\Event\ConsoleExceptionEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -47,18 +44,13 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
         $this->instable = $this->getContainer()->get('instable');
         $this->instable->getDispatcher()->addSubscriber($this);
 
-        while(true)
-        {
+        while (true) {
             $trackings = $this->getContainer()->get('doctrine')->getRepository('AppBundle:Tracking')->findAll();
 
-            foreach($trackings as $tracking)
-            {
-                try
-                {
+            foreach ($trackings as $tracking) {
+                try {
                     $this->instable->update($tracking->getTracked());
-                }
-                catch(Exception $e)
-                {
+                } catch (Exception $e) {
                     $this->output->writeln(sprintf("<error>%s, code %s</error>", $e->getMessage(), $e->getCode()));
                     $this->sleep(15);
                 }
@@ -81,7 +73,7 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
             'instable.followers_by.new_follower' => 'onFollowersByNewFollower',
             'instable.unfollowers_by.start' => 'onUnfollowersByStart',
             'instable.unfollowers_by.new_unfollower' => 'onUnfollowersByNewUnfollower',
-            'instable.update.finish' => 'onUpdateFinish'
+            'instable.update.finish' => 'onUpdateFinish',
         );
     }
 
@@ -180,8 +172,7 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
     {
         $this->output->writeln(sprintf("Sleep <info>%s</info> seconds", $seconds));
         $bar = new ProgressBar($this->output, $seconds);
-        for($s = 0; $s < $seconds; $s++)
-        {
+        for ($s = 0; $s < $seconds; $s++) {
             sleep(1);
             $bar->advance();
         }
