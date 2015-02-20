@@ -14,34 +14,7 @@ class AppController extends Controller
      */
     public function homepageAction(Request $request)
     {
-        $url = $this->get('instable')->getApi()->getOauthUrl();
-
-        return $this->redirect($url);
-    }
-
-    /**
-     * @Route("/oauth", name="oauth")
-     */
-    public function oauthAction(Request $request)
-    {
-        $instable = $this->get('instable');
-        $em = $this->getDoctrine()->getEntityManager();
-
-        // Authorize
-        $code = $request->query->get('code');
-        $instable->getApi()->Users->Authorize($code);
-
-        // Save user
-        $accessToken = $instable->getApi()->getAccessToken();
-        $data = $this->get('instable')->getApi()->Users->getCurrentUser();
-        $user = $instable->updateUser($data);
-        $user->setCode($code);
-        $user->setAccessToken($accessToken);
-
-        $em->persist($user);
-        $em->flush();
-
-        return $this->render('default/index.html.twig', array('user' => $user));
+        return $this->render('base.html.twig');
     }
 
     /**

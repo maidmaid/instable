@@ -71,3 +71,11 @@ swiftmailer:
     username:  "%mailer_user%"
     password:  "%mailer_password%"
     spool:     { type: memory }
+
+hwi_oauth:
+    firewall_name: secured_area
+    resource_owners:
+        instagram:
+            type:           instagram
+            client_id:      014ead5d04874ed1a784d061343af014
+            client_secret:  %instagram_client_secret%

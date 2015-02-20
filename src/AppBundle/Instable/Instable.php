@@ -54,7 +54,6 @@ class Instable extends ContainerAware
         $this->api = new Instaphp([
             'client_id' => $container->getParameter('instagram_client_id'),
             'client_secret' => $container->getParameter('instagram_client_secret'),
-            'redirect_uri' => $container->getParameter('instagram_redirect_uri'),
             'debug' => true,
             'log_path' => $this->container->get('kernel')->getRootDir().'/logs/insta.log',
             /* TODO 'event.error' => null */

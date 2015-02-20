@@ -4,3 +4,9 @@ services:
     instable:
         class: AppBundle\Instable\Instable
         arguments: ["@service_container"]
+
+    app.security.authentication_event_listener:
+        class: AppBundle\Event\AuthenticationListener
+        arguments: [@doctrine.orm.entity_manager, @instable]
+        tags:
+            - { name: kernel.event_subscriber }

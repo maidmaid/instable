@@ -16,7 +16,7 @@ class TrackingController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $tracker = $em->getRepository('AppBundle:User')->findOneBy(array('username' => 'danymai'));
+        $tracker = $em->getRepository('AppBundle:User')->findOneBy(array('username' => $this->getUser()->getUsername()));
         $users = $em->getRepository('AppBundle:User')->findAll();
         $trackings = $em->getRepository('AppBundle:Tracking')->findAll();
 
@@ -33,7 +33,7 @@ class TrackingController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $tracker = $em->getRepository('AppBundle:User')->findOneBy(array('username' => 'danymai'));
+        $tracker = $em->getRepository('AppBundle:User')->findOneBy(array('username' => $this->getUser()->getUsername()));
         $tracking = new Tracking();
         $tracking->setTracker($tracker);
         $tracking->setTracked($tracked);
@@ -51,7 +51,7 @@ class TrackingController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $tracker = $em->getRepository('AppBundle:User')->findOneBy(array('username' => 'danymai'));
+        $tracker = $em->getRepository('AppBundle:User')->findOneBy(array('username' => $this->getUser()->getUsername()));
         $tracking = $em->getRepository('AppBundle:Tracking')->findOneBy(array('tracker' => $tracker, 'tracked' => $tracked));
 
         $em->remove($tracking);
