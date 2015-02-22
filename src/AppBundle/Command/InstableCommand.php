@@ -208,7 +208,7 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
      */
     protected function writeUser($user)
     {
-        $this->output->write($this->formatUser($user));
+        $this->output->write(' '.$this->formatUser($user));
     }
 
     /**
@@ -217,7 +217,7 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
      */
     protected function formatUser($user)
     {
-        return sprintf(' <info>%s</info> (<comment>%s</comment>)', $user->getUsername(), $user->getExternalId());
+        return sprintf('<info>%s</info> (<comment>%s</comment>)', $user->getUsername(), $user->getExternalId());
     }
 
     protected function sleep($seconds)
