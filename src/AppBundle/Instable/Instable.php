@@ -6,6 +6,7 @@ use AppBundle\Entity\Relationship;
 use AppBundle\Entity\RelationshipRepository;
 use AppBundle\Entity\User;
 use AppBundle\Entity\UserRepository;
+use AppBundle\Event\InstableEvent;
 use AppBundle\Utils\Utils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\UnitOfWork;
@@ -101,7 +102,7 @@ class Instable extends ContainerAware
 
         $this->em->flush();
 
-        $this->dispatcher->dispatch('instable.update.finish');
+        $this->dispatcher->dispatch('instable.update.finish', new InstableEvent($user));
     }
 
     /**
@@ -111,17 +112,23 @@ class Instable extends ContainerAware
      */
     public function updateSelfUser($user)
     {
-        $this->dispatcher->dispatch('instable.self.start');
+        $this->dispatcher->dispatch('instable.self.start', new InstableEvent($user));
         $r = $this->api->Users->Info($user->getExternalId());
         $user = $this->updateUser($r->data);
 
         // Compute changes
         $this->uow->computeChangeSets();
         $changeset = $this->uow->getEntityChangeSet($user);
-        $this->dispatcher->dispatch('instable.self.update', new GenericEvent(array(
-            'user' => $user,
-            'changeset' => $changeset,
-        )));
+
+        if (array_key_exists('countMedia', $changeset)) {
+            $this->dispatcher->dispatch('instable.self.update_count_media', new InstableEvent($user, $changeset['countMedia']));
+        }
+        if (array_key_exists('countFollows', $changeset)) {
+            $this->dispatcher->dispatch('instable.self.update_count_follows', new InstableEvent($user, $changeset['countFollows']));
+        }
+        if (array_key_exists('countFollowedBy', $changeset)) {
+            $this->dispatcher->dispatch('instable.self.update_count_followed_by', new InstableEvent($user, $changeset['countFollowedBy']));
+        }
 
         return $user;
     }
@@ -141,16 +148,16 @@ class Instable extends ContainerAware
                 $relationship = $this->updateRelationship($user, $targetUser);
 
                 if ($relationship->getId() === null) {
-                    $this->dispatcher->dispatch('instable.followers.new_follower', new GenericEvent($targetUser));
+                    $this->dispatcher->dispatch('instable.followers.new_follower', new InstableEvent($user, $targetUser));
                 }
             }
         };
 
-        $this->dispatcher->dispatch('instable.followers.start');
+        $this->dispatcher->dispatch('instable.followers.start', new InstableEvent($user));
         $response = $this->api->Users->Follows($user->getExternalId());
         $update($response);
         while ($response = Utils::nextUrl($response)) {
-            $this->dispatcher->dispatch('instable.followers.next_pagination');
+            $this->dispatcher->dispatch('instable.followers.next_pagination', new InstableEvent($user));
             $update($response);
         }
 
@@ -172,16 +179,16 @@ class Instable extends ContainerAware
                 $relationship = $this->updateRelationship($user, $targetUser);
 
                 if ($relationship->getId() === null) {
-                    $this->dispatcher->dispatch('instable.followers_by.new_follower', new GenericEvent($user));
+                    $this->dispatcher->dispatch('instable.followers_by.new_follower', new InstableEvent($targetUser, $user));
                 }
             }
         };
 
-        $this->dispatcher->dispatch('instable.followers_by.start');
+        $this->dispatcher->dispatch('instable.followers_by.start', new InstableEvent($targetUser));
         $response = $this->api->Users->FollowedBy($targetUser->getExternalId());
         $update($response);
         while ($response = Utils::nextUrl($response)) {
-            $this->dispatcher->dispatch('instable.followers_by.next_pagination');
+            $this->dispatcher->dispatch('instable.followers_by.next_pagination', new InstableEvent($targetUser));
             $update($response);
         }
 
@@ -218,12 +225,12 @@ class Instable extends ContainerAware
         /** @var RelationshipRepository $repo */
         $repo = $this->em->getRepository('AppBundle:Relationship');
 
-        $this->dispatcher->dispatch('instable.unfollowers.start');
+        $this->dispatcher->dispatch('instable.unfollowers.start', new InstableEvent($user));
         $relationships = $repo->findByUserAndPreUpdatedAt($user, $this->start);
         foreach ($relationships as $relationship) {
             $r = new Relationship($user, $relationship->getTargetUser(), false, $this->start, $this->start);
             $this->em->persist($r);
-            $this->dispatcher->dispatch('instable.unfollowers.new_unfollower', new GenericEvent($relationship->getTargetUser()));
+            $this->dispatcher->dispatch('instable.unfollowers.new_unfollower', new InstableEvent($user, $relationship->getTargetUser()));
         }
     }
 
@@ -232,12 +239,12 @@ class Instable extends ContainerAware
         /** @var RelationshipRepository $repo */
         $repo = $this->em->getRepository('AppBundle:Relationship');
 
-        $this->dispatcher->dispatch('instable.unfollowers_by.start');
+        $this->dispatcher->dispatch('instable.unfollowers_by.start', new InstableEvent($targetUser));
         $relationships = $repo->findByTargetUserAndPreUpdatedAt($targetUser, $this->start);
         foreach ($relationships as $relationship) {
             $r = new Relationship($relationship->getUser(), $targetUser, false, $this->start, $this->start);
             $this->em->persist($r);
-            $this->dispatcher->dispatch('instable.unfollowers_by.new_unfollower', new GenericEvent($relationship->getTargetUser()));
+            $this->dispatcher->dispatch('instable.unfollowers_by.new_unfollower', new InstableEvent($targetUser, $relationship->getTargetUser()));
         }
     }
 

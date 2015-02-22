@@ -35,11 +35,13 @@ class AuthenticationListener implements EventSubscriberInterface
         /** @var OAuthToken $token */
         $token = $event->getAuthenticationToken();
 
-        $raw = $token->getRawToken();
-        $user = $this->instable->updateUser($raw['user']);
-        $user->setAccessToken($token->getAccessToken());
+        if ($token instanceof OAuthToken) {
+            $raw = $token->getRawToken();
+            $user = $this->instable->updateUser($raw['user']);
+            $user->setAccessToken($token->getAccessToken());
 
-        $this->em->persist($user);
-        $this->em->flush();
+            $this->em->persist($user);
+            $this->em->flush();
+        }
     }
 }
