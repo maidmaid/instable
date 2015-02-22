@@ -217,7 +217,12 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
      */
     protected function formatUser($user)
     {
-        return sprintf('<info>%s</info> (<comment>%s</comment>)', $user->getUsername(), $user->getExternalId());
+        $formatted = sprintf('<info>%s</info>', $user->getUsername());
+        if ($this->output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE) {
+            $formatted =  sprintf('%s (<comment>%s</comment>)', $formatted, $user->getExternalId());
+        }
+
+        return $formatted;
     }
 
     protected function sleep($seconds)
