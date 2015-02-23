@@ -13,20 +13,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class UpdateCommand extends ContainerAwareCommand implements EventSubscriberInterface
+class TrackCommand extends AbstractCommand implements EventSubscriberInterface
 {
-    /** @var OutputInterface */
-    protected $output;
-
-    /** @var Instable */
-    protected $instable;
-
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
-        $this->setName('instable:update');
+        $this->setName('instable:track');
     }
 
     /**
@@ -34,8 +28,8 @@ class UpdateCommand extends ContainerAwareCommand implements EventSubscriberInte
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->output = $output;
-        $this->instable = $this->getContainer()->get('instable');
+        parent::execute($input, $output);
+
         $this->instable->getDispatcher()->addSubscriber($this);
 
         while (true) {
@@ -194,43 +188,5 @@ class UpdateCommand extends ContainerAwareCommand implements EventSubscriberInte
         if ($this->output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE) {
             $this->output->write(sprintf(' <info>%s</info> remaining', $this->instable->getLastResponse()->remaining));
         }
-    }
-
-    /**
-     * @param $user User
-     */
-    protected function writeUser($user)
-    {
-        $this->output->write(' '.$this->formatUser($user));
-    }
-
-    /**
-     * @param $user User
-     *
-     * @return string
-     */
-    protected function formatUser($user)
-    {
-        $formatted = sprintf('<info>%s</info>', $user->getUsername());
-        if ($this->output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE) {
-            $formatted =  sprintf('%s (<comment>%s</comment>)', $formatted, $user->getExternalId());
-        }
-
-        return $formatted;
-    }
-
-    protected function sleep($seconds)
-    {
-        $this->output->write(sprintf("Sleep <info>%s</info> seconds", $seconds));
-        $bar = new ProgressBar($this->output, $seconds);
-        for ($s = 0; $s < $seconds; $s++) {
-            sleep(1);
-            $bar->advance();
-        }
-    }
-
-    protected function write($message)
-    {
-        $this->output->write(sprintf(' %s <fg=magenta;options=bold>|</fg=magenta;options=bold>', $message));
     }
 }
