@@ -6,7 +6,6 @@ use AppBundle\Entity\User;
 use AppBundle\Instable\Instable;
 use AppBundle\Utils\Utils;
 use Instaphp\Exceptions\Exception;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
