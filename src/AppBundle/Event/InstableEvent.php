@@ -2,7 +2,6 @@
 
 namespace AppBundle\Event;
 
-
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 class InstableEvent extends GenericEvent

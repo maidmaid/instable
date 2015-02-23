@@ -11,7 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class UpdateCommand extends ContainerAwareCommand implements EventSubscriberInterface
@@ -207,6 +206,7 @@ class UpdateCommand extends ContainerAwareCommand implements EventSubscriberInte
 
     /**
      * @param $user User
+     *
      * @return string
      */
     protected function formatUser($user)
