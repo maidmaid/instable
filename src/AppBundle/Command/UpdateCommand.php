@@ -14,11 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class InstableCommand extends ContainerAwareCommand implements EventSubscriberInterface
+class UpdateCommand extends ContainerAwareCommand implements EventSubscriberInterface
 {
-    /** @var ProgressBar */
-    protected $bar;
-
     /** @var OutputInterface */
     protected $output;
 
@@ -30,10 +27,7 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
      */
     protected function configure()
     {
-        $this
-            ->setName('instable:update')
-            ->setDescription('instable command')
-        ;
+        $this->setName('instable:update');
     }
 
     /**
@@ -190,7 +184,7 @@ class InstableCommand extends ContainerAwareCommand implements EventSubscriberIn
     public function onUnfollowersByNewUnfollower(InstableEvent $e)
     {
         $this->write(sprintf(
-            "%s is no longer new unfollower %s",
+            "%s is no longer followed by %s",
             $this->formatUser($e->getUser()),
             $this->formatUser($e->getSubject())
         ));

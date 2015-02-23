@@ -79,3 +79,4 @@ hwi_oauth:
             type:           instagram
             client_id:      014ead5d04874ed1a784d061343af014
             client_secret:  %instagram_client_secret%
+            scope:          "comments relationships likes"

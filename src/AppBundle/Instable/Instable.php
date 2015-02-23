@@ -13,6 +13,8 @@ use Doctrine\ORM\UnitOfWork;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Event\CompleteEvent;
+use GuzzleHttp\Event\ErrorEvent;
+use HWI\Bundle\OAuthBundle\Security\Core\Authentication\Token\OAuthToken;
 use Instaphp\Instagram\Response;
 use Instaphp\Instaphp;
 use Symfony\Component\DependencyInjection\ContainerAware;
@@ -61,8 +63,11 @@ class Instable extends ContainerAware
             'event.after' => array($this, 'onEventAfter'),
         ]);
 
-        $user = $container->get('doctrine')->getRepository('AppBundle:User')->findOneBy(array('username' => 'danymai'));
-        $this->api->setAccessToken($user->getAccessToken());
+        /** @var OAuthToken $token */
+        $token = $container->get('security.token_storage')->getToken();
+        if ($token instanceof OAuthToken) {
+            $this->api->setAccessToken($token->getAccessToken());
+        }
     }
 
     public function onEventAfter(CompleteEvent $e)
@@ -85,20 +90,20 @@ class Instable extends ContainerAware
         return $this->dispatcher;
     }
 
-    public function update($userId)
+    public function update($user)
     {
         $this->start = new \DateTime();
 
         // self update
-        $user = $this->updateSelfUser($userId);
+        $user = $this->updateInfoUser($user);
 
         // followers + unfollowers
-        $this->updateFollowers($user);
-        $this->updateUnfollowers($user);
+        $this->updateFollows($user);
+        $this->updateUnfollows($user);
 
         // followers by + unfollowers by
-        $this->updateFollowersBy($user);
-        $this->updateUnfollowersBy($user);
+        $this->updateFollowedBy($user);
+        $this->updateUnfollowedBy($user);
 
         $this->em->flush();
 
@@ -106,11 +111,43 @@ class Instable extends ContainerAware
     }
 
     /**
+     * @param $data
+     *
+     * @return User
+     */
+    public function updateUser($data)
+    {
+        /** @var UserRepository $repo */
+        $repo = $this->em->getRepository('AppBundle:User');
+
+        $user = $repo->findOneByExternalId($data['id']);
+        $user = $user === null ? new User() : $user;
+
+        $user->setUsername($data['username']);
+        //$user->setBio($data['bio']); // TODO : fix special chars in bio
+        $user->setBio('static bio');
+        $user->setFullName($data['full_name']);
+        $user->setProfilePicture($data['profile_picture']);
+        $user->setFullName($data['full_name']);
+        $user->setExternalId($data['id']);
+
+        if (array_key_exists('counts', $data)) {
+            $user->setCountMedia($data['counts']['media']);
+            $user->setCountFollowedBy($data['counts']['followed_by']);
+            $user->setCountFollows($data['counts']['follows']);
+        }
+
+        $this->em->persist($user);
+
+        return $user;
+    }
+
+    /**
      * @param $user User
      *
      * @return User
      */
-    public function updateSelfUser($user)
+    public function updateInfoUser($user)
     {
         $this->dispatcher->dispatch('instable.self.start', new InstableEvent($user));
         $r = $this->api->Users->Info($user->getExternalId());
@@ -138,7 +175,7 @@ class Instable extends ContainerAware
      *
      * @return Relationship[]
      */
-    public function updateFollowers($user)
+    public function updateFollows($user)
     {
         /* @var Response $response */
 
@@ -169,7 +206,7 @@ class Instable extends ContainerAware
      *
      * @return Relationship[]
      */
-    public function updateFollowersBy($targetUser)
+    public function updateFollowedBy($targetUser)
     {
         /* @var Response $response */
 
@@ -220,7 +257,7 @@ class Instable extends ContainerAware
         return $relationship;
     }
 
-    public function updateUnfollowers($user)
+    public function updateUnfollows($user)
     {
         /** @var RelationshipRepository $repo */
         $repo = $this->em->getRepository('AppBundle:Relationship');
@@ -234,7 +271,7 @@ class Instable extends ContainerAware
         }
     }
 
-    public function updateUnfollowersBy($targetUser)
+    public function updateUnfollowedBy($targetUser)
     {
         /** @var RelationshipRepository $repo */
         $repo = $this->em->getRepository('AppBundle:Relationship');
@@ -246,52 +283,5 @@ class Instable extends ContainerAware
             $this->em->persist($r);
             $this->dispatcher->dispatch('instable.unfollowers_by.new_unfollower', new InstableEvent($targetUser, $relationship->getTargetUser()));
         }
-    }
-
-    /**
-     * @param $data
-     *
-     * @return User
-     */
-    public function updateUser($data)
-    {
-        /** @var UserRepository $repo */
-        $repo = $this->em->getRepository('AppBundle:User');
-
-        $user = $repo->findOneByExternalId($data['id']);
-        $user = $user === null ? new User() : $user;
-
-        $user->setUsername($data['username']);
-        //$user->setBio($data['bio']); // TODO : fix special chars in bio
-        $user->setBio('static bio');
-        $user->setFullName($data['full_name']);
-        $user->setProfilePicture($data['profile_picture']);
-        $user->setFullName($data['full_name']);
-        $user->setExternalId($data['id']);
-
-        if (array_key_exists('counts', $data)) {
-            $user->setCountMedia($data['counts']['media']);
-            $user->setCountFollowedBy($data['counts']['followed_by']);
-            $user->setCountFollows($data['counts']['follows']);
-        }
-
-        $this->em->persist($user);
-
-        return $user;
-    }
-
-    /**
-     * @param $user User
-     *
-     * @return int
-     */
-    public static function estimateOperations($user)
-    {
-        return
-            1 +                                             // self update
-            1 + ceil($user->getCountFollows() / 50.0) +     // update followers: first update + pagination (50 followers per page)
-            1 +                                             // update unfollers
-            1 + ceil($user->getCountFollows() / 50.0) +     // update followers by: first update + pagination (50 followers per page)
-            1;                                              // update unfollers by
     }
 }
