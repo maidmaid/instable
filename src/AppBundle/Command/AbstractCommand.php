@@ -55,9 +55,4 @@ abstract class AbstractCommand extends ContainerAwareCommand
             $bar->advance();
         }
     }
-
-    protected function write($message)
-    {
-        $this->output->write(sprintf(' %s <fg=magenta;options=bold>|</fg=magenta;options=bold>', $message));
-    }
 }

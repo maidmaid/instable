@@ -74,7 +74,7 @@ class TrackCommand extends AbstractCommand implements EventSubscriberInterface
 
     public function onSelfUpdateCountMedia(InstableEvent $e)
     {
-        $this->write(sprintf(
+        $this->output->writeln(sprintf(
             '%s has <info>%s</info> medias, before <info>%s</info>',
             $this->formatUser($e->getUser()),
             $e->getSubject()[1],
@@ -84,7 +84,7 @@ class TrackCommand extends AbstractCommand implements EventSubscriberInterface
 
     public function onSelfUpdateCountFollows(InstableEvent $e)
     {
-        $this->write(sprintf(
+        $this->output->writeln(sprintf(
             '%s follows <info>%s</info>, before <info>%s</info>',
             $this->formatUser($e->getUser()),
             $e->getSubject()[1],
@@ -94,7 +94,7 @@ class TrackCommand extends AbstractCommand implements EventSubscriberInterface
 
     public function onSelfUpdateCountFollowedBy(InstableEvent $e)
     {
-        $this->write(sprintf(
+        $this->output->writeln(sprintf(
             '%s is followed by <info>%s</info>, before <info>%s</info>',
             $this->formatUser($e->getUser()),
             $e->getSubject()[1],
@@ -118,7 +118,7 @@ class TrackCommand extends AbstractCommand implements EventSubscriberInterface
 
     public function onFollowersNewFollower(InstableEvent $e)
     {
-        $this->write(sprintf(
+        $this->output->writeln(sprintf(
             '%s follows %s',
             $this->formatUser($e->getUser()),
             $this->formatUser($e->getSubject())
@@ -134,7 +134,7 @@ class TrackCommand extends AbstractCommand implements EventSubscriberInterface
 
     public function onUnfollowersNewUnfollower(InstableEvent $e)
     {
-        $this->write(sprintf(
+        $this->output->writeln(sprintf(
             '%s no longer follows %s',
             $this->formatUser($e->getUser()),
             $this->formatUser($e->getSubject())
@@ -157,7 +157,7 @@ class TrackCommand extends AbstractCommand implements EventSubscriberInterface
 
     public function onFollowersByNewFollower(InstableEvent $e)
     {
-        $this->write(sprintf(
+        $this->output->writeln(sprintf(
             '%s is followed by %s',
             $this->formatUser($e->getUser()),
             $this->formatUser($e->getSubject())
@@ -173,7 +173,7 @@ class TrackCommand extends AbstractCommand implements EventSubscriberInterface
 
     public function onUnfollowersByNewUnfollower(InstableEvent $e)
     {
-        $this->write(sprintf(
+        $this->output->writeln(sprintf(
             "%s is no longer followed by %s",
             $this->formatUser($e->getUser()),
             $this->formatUser($e->getSubject())

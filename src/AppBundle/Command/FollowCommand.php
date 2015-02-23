@@ -37,43 +37,47 @@ class FollowCommand extends AbstractCommand
         $api = $this->getContainer()->get('instable')->getApi();
         $api->setAccessToken($user->getAccessToken());
 
-        $follow = function ($response) use ($api, $output) {
-            foreach ($response->data as $d) {
-                // TODO
-                $user = $this->instable->updateUser($d);
-                try {
-                    $user = $this->instable->updateInfoUser($user);
-                } catch (Exception $e) {
-                    $output->writeln(sprintf('<info>%s</info> -> <error>%s</error>', $d['username'], $e->getMessage()));
-                    continue;
-                }
-                $this->writeUser($user);
+        $follow = function ($data) use ($api, $output) {
+            $user = $this->instable->updateUser($data);
 
-                $q = $user->getCountFollows() / $user->getCountFollowedBy();
-                if ($q < 1) {
-                    $output->writeln(sprintf(' -> <error>%s%%</error> (%s / %s)', round($q * 100), $user->getCountFollows(), $user->getCountFollowedBy()));
-                    sleep(1);
-                    continue;
-                }
+            // Try get infos
+            try {
+                $user = $this->instable->updateInfoUser($user);
+            } catch (Exception $e) {
+                $output->writeln(sprintf('<info>%s</info> -> <error>%s</error>', $data['username'], $e->getMessage()));
+                return;
+            }
+            $this->writeUser($user);
 
-                try {
-                    $f = $api->Users->Follow($user->getExternalId());
-                    $output->writeln(sprintf(
-                        ' -> status: <info>%s</info>, private user: <info>%s</info>',
-                        $f->data['outgoing_status'],
-                        $f->data['target_user_is_private'] ? 'yes' : 'no'
-                    ));
-                } catch (Exception $e) {
-                    $output->writeln($e->getMessage());
-                }
-                sleep(180);
+            // Quota < 1
+            $q = $user->getCountFollows() / ($user->getCountFollowedBy() + 1);
+            $output->writeln(sprintf(' -> <question>%s%%</question> (%s / %s)', round($q * 100), $user->getCountFollows(), $user->getCountFollowedBy()));
+            if ($q < 1) {
+                return;
+            }
+
+            // Follow
+            try {
+                $f = $api->Users->Follow($user->getExternalId());
+                $output->writeln(sprintf(
+                    ' -> status: <info>%s</info>, private user: <info>%s</info>',
+                    $f->data['outgoing_status'],
+                    $f->data['target_user_is_private'] ? 'yes' : 'no'
+                ));
+                $this->sleep(180);
+            } catch (Exception $e) {
+                $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
             }
         };
 
-        $response = $api->Users->Follows('25025320');
-        $follow($response);
-        while ($response = Utils::nextUrl($response)) {
-            $follow($response);
+        while (true) {
+            $popular = $api->Media->Popular();
+            foreach ($popular->data as $p) {
+                $likes = $api->Media->Likes($p['id']);
+                foreach ($likes->data as $user) {
+                    $follow($user);
+                }
+            }
         }
     }
 }
