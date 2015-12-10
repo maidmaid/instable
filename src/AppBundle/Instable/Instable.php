@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\UnitOfWork;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Event\BeforeEvent;
 use GuzzleHttp\Event\CompleteEvent;
 use HWI\Bundle\OAuthBundle\Security\Core\Authentication\Token\OAuthToken;
 use Instaphp\Instagram\Response;
@@ -20,6 +21,11 @@ use Symfony\Component\DependencyInjection\ContainerAware;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 class Instable extends ContainerAware
 {
@@ -44,6 +50,13 @@ class Instable extends ContainerAware
     /** @var Response */
     protected $lastResponse;
 
+    protected $cacheFile;
+
+    /** @var \DateTime */
+    protected $rateLimitDate;
+
+    protected $stopWatch;
+
     public function __construct(ContainerInterface $container)
     {
         $this->setContainer($container);
@@ -55,9 +68,10 @@ class Instable extends ContainerAware
         $this->api = new Instaphp([
             'client_id' => $container->getParameter('instagram_client_id'),
             'client_secret' => $container->getParameter('instagram_client_secret'),
+            'client_ip' => '127.0.0.1',
             'debug' => true,
             'log_path' => $this->container->get('kernel')->getRootDir().'/logs/insta.log',
-            /* TODO 'event.error' => null */
+            'event.before' => array($this, 'onEventBefore'),
             'event.after' => array($this, 'onEventAfter'),
         ]);
 
@@ -66,11 +80,53 @@ class Instable extends ContainerAware
         if ($token instanceof OAuthToken) {
             $this->api->setAccessToken($token->getAccessToken());
         }
+
+        $this->initCache();
     }
 
     public function onEventAfter(CompleteEvent $e)
     {
         $this->lastResponse = new Response($e->getResponse());
+        if ($this->lastResponse->remaining === 4999) {
+            $this->rateLimitDate = microtime();
+            $this->writeCache();
+        }
+        $this->estimateAdvance();
+    }
+
+    public function initCache()
+    {
+        $this->cacheFile = $this->container->get('kernel')->getCacheDir().'/instable';
+        $this->readCache();
+    }
+
+    public function writeCache()
+    {
+        $data = serialize(array('rateLimitDate' => $this->rateLimitDate->getTimestamp()));
+        $fs = new Filesystem();
+        $fs->dumpFile($this->cacheFile, $data);
+    }
+
+    public function readCache()
+    {
+        $data = unserialize(file_get_contents($this->cacheFile));
+        $this->rateLimitDate = new \DateTime();
+        $this->rateLimitDate->setTimestamp($data['rateLimitDate']);
+    }
+
+    public function estimateAdvance()
+    {
+        $lap = $this->stopWatch->lap('instable');
+        $duration = $lap->getDuration();
+        $idealCount = (int) ($duration / 3600000 * 5000);
+        dump($lap->getOrigin());
+
+        //$delta = $this->getLastResponse()->remaining / $this->getLastResponse()->limit * 60 * 60;
+    }
+
+    public function onEventBefore(BeforeEvent $e)
+    {
+        dump($e->getRequest()->getPath());
     }
 
     public function getLastResponse()

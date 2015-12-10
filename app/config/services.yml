@@ -10,3 +10,8 @@ services:
         arguments: [@doctrine.orm.entity_manager, @instable]
         tags:
             - { name: kernel.event_subscriber }
+
+    get_set_method_normalizer:
+          class: Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer
+          tags:
+             - { name: serializer.normalizer }

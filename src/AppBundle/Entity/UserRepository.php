@@ -13,4 +13,9 @@ class UserRepository extends EntityRepository
     {
         return parent::findOneBy(array('externalId' => $externalId));
     }
+
+    public function findOneByUsername($username)
+    {
+        return parent::findOneBy(array('username' => $username));
+    }
 }
